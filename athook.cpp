@@ -1,4 +1,4 @@
-// athook.cpp : Defines the entry point for the DLL application.
+﻿// athook.cpp : Defines the entry point for the DLL application.
 //
 
 #include "stdafx.h"
@@ -47,6 +47,10 @@ BOOL bHooked = 0;
 #define FUNC_PHUTHANH 8027
 #define FUNC_MORUONG 8028
 #define FUNC_ENTITY_INTERACT1 8029
+#define FUNC_START_GAME 8030
+#define FUNC_CHOOSE_SERVER 8031
+#define FUNC_CLICK_NPC 8040
+#define FUNC_SHORT_MOVE 8041
 int param_length;
 int params[10];
 int func_call;
@@ -78,13 +82,13 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 void WriteLog(){
 }
 
-
 void funcMoveTo(int posX, int posY, int mapID){
 	_asm{
+		//sabay
 		push edx;
 		push ecx;
 		push eax;
-		mov edx, 6;
+		mov edx, 0;
 		push edx;
 		mov ecx, posY;
 		push ecx;
@@ -92,41 +96,130 @@ void funcMoveTo(int posX, int posY, int mapID){
 		push eax;
 		mov edx, mapID;
 		push edx;
-		MOV ECX,0x00AD8CC0;
-        mov eax,0x004F2330;
+		MOV ECX,0x00948ED0;//B76750
+		mov eax,0x004E5370;//505160
 		call eax;
 		pop eax;
 		pop ecx;
 		pop edx;
+
+		//push edx;
+		//push ecx;
+		//push eax;
+		//mov edx, 6;
+		//push edx;
+		//mov ecx, posY;
+		//push ecx;
+		//mov eax, posX;
+		//push eax;
+		//mov edx, mapID;
+		//push edx;
+		//MOV ECX,0x00B76750;//B76750
+  	    //mov eax,0x00505160;//505160
+		//call eax;
+		//pop eax;
+		//pop ecx;
+		//pop edx;
 	}
 }
+
+/* binary buff...
+* 89 45 E4 6A 00 6A 00 6A 00 6A 00 6A 00 6A 00 8B
+45 0C 50 6A 04 8B 4D E4
+*/
+////move(2, toa x, toa y,0,0,0,0)
+////click npc(4,id npc,0,0,00,0,)
+////danh wai(3,-1,idnpc,idkill)
+////buffkill (3,toax,toay,idkill)
+//void SendNpc(int pra1,int pra2,int pra3,int pra4,int pra5,int pra6,int pra7,int pNpc)
 void EntityInteractive(int pra1,int pra2,int pra3,int pra4,int pra5,int pra6,int pra7,int pNpc)
 {
-                __asm {
-                        push eax;
-                        push ecx;
-						push 0;
-                        mov eax,pra7;
-                        push eax;
-                        mov eax,pra6;
-                        push eax;
-                        mov eax,pra5;
-                        push eax;
-                        mov eax,pra4;
-                        push eax;
-                        mov eax,pra3;
-                        push eax;
-                        mov eax,pra2;
-                        push eax;
-                        mov eax,pra1;
-                        push eax;
-                        mov ecx,pNpc;
-                        mov eax,0x0048CAE0;
-                        call eax;
-                        pop ecx;
-                        pop eax;
-                }
+	__asm {
+		push eax;
+		push ecx;
+		push 0;
+		mov eax, pra7;
+		push eax;
+		mov eax, pra6;
+		push eax;
+		mov eax, pra5;
+		push eax;
+		mov eax, pra4;
+		push eax;
+		mov eax, pra3;
+		push eax;
+		mov eax, pra2;
+		push eax;
+		mov eax, pra1;
+		push eax;
+		mov ecx, pNpc;
+		mov eax, 0x004E6C80;
+		call eax;
+		pop ecx;
+		pop eax;
+	}
+            
 }
+//click npc jxsabay
+void funcClickNPC(int idNPC,int baseAddress)
+{
+	__asm {
+		push eax;
+		push ecx;
+		push edx;
+		mov eax,0;
+		push eax;
+		mov eax, 0;
+		push eax;
+		mov eax, 0;
+		push eax;
+		mov eax, 0;
+		push eax;
+		mov eax,idNPC;
+		push eax;
+		mov edx, 4;
+		push edx;
+		mov edx, baseAddress;
+		push edx;
+		mov ecx, 0x008A7654;
+		mov eax, 0x004E6C80;
+		call eax;
+		pop edx;
+		pop ecx;
+		pop eax;
+	}
+}
+void funcShortMove(int idMap,int X, int Y,int Y2,int baseAddress)
+{
+	__asm {
+		push eax;
+		push ecx;
+		push edx;
+		mov eax, 0;
+		push eax;
+		mov eax, 0;
+		push eax;
+		mov eax, idMap;
+		push eax;
+		mov eax, Y;
+		push eax;
+		mov eax, X;
+		push eax;
+		mov eax, Y2;
+		push eax;
+		mov edx, baseAddress;
+		push edx;
+		mov ecx, 0x008A7654;
+		mov eax, 0x004E6C80;
+		call eax;
+		pop edx;
+		pop ecx;
+		pop eax;
+	}
+}
+/* mua item
+* 
+*/
 void funcBuyItem(int itemPos, int param2, int quantity, int param4, int param5){
 	_asm{
 		push eax;
@@ -141,22 +234,25 @@ void funcBuyItem(int itemPos, int param2, int quantity, int param4, int param5){
 		push eax;
 		mov eax, itemPos;
 		push eax;
-    	MOV ECX,0x00A34760;
-		mov eax,0x004F4280;
+    	MOV ECX,0x00A5B1B4;
+		mov eax,0x00509470;
 		CALL eax;
 		pop ecx;
 		pop eax;
 	}
 }
 
-
+/// <summary>
+/// bán item
+/// </summary>
+/// <param name="xitem"></param>
 void BanItem(int xitem)
 {
                 __asm {
                                 push eax;
                                 push ecx;
                                 push xitem;
-								    mov ecx,0x00A34760;
+								mov ecx,0x00A34760;
                                 mov eax,0x004F47C0;
                                 call eax;
                                 pop ecx;
@@ -164,53 +260,12 @@ void BanItem(int xitem)
                 }
 }
 
-void funcMoneyInteract(int money, int param1, int param2)  //sai dia chi
-{
-        __asm {
-                push ecx;
-                push eax;
-                push edx;               
-                mov edx,money;
-                push edx;
-                mov eax,param1;
-                push eax;
-                mov ecx,param2;
-                push ecx;
-               mov ecx,0x0086E3C8;
-                mov eax,0x004DA2E0;
-                call eax;
-                pop edx;
-                pop eax;
-                pop ecx;
-        }
-}
 
-
-
-void funcDialogInteractive(int actionType, int param1, int param2){ //sai dia chi
-	_asm{
-		push eax;
-		push edx;
-		push ecx;
-		push esi;
-		mov eax, param2;
-		push eax;catmini
-		MOV ESI,param1;
-		PUSH ESI;
-		MOV ECX,[ESI+0x50]
-		MOV EDX,[ECX]
-		mov eax, actionType;
-		push eax;
-		mov eax, 0x00662B10;
-		call eax;
-		pop esi;
-		pop ecx;
-		pop edx;
-		pop eax;
-
-	}
-}
-
+/// <summary>
+/// sử dụng ngựa
+/// </summary>
+/// <param name="playerAddress"></param>
+/// <param name="use"></param>
 void funcUseHorse(int playerAddress, int use){
 	_asm{
 		push eax;
@@ -229,7 +284,10 @@ void funcUseHorse(int playerAddress, int use){
 		pop eax;
 	}
 }
-
+/// <summary>
+/// chế item
+/// </summary>
+/// <param name="itemId"></param>
 void funcComposeItem(int itemId){ 
 	_asm{
 		push eax;
@@ -238,14 +296,18 @@ void funcComposeItem(int itemId){
 		push eax;
 		mov eax, itemId;
 		push eax;
-	mov ecx,0x00A34760; 
+		mov ecx,0x00A34760; 
 		mov eax,0x004F40C0;
 		call eax;
 		pop ecx;
 		pop eax;
 	}
 }
-
+/// <summary>
+/// sử dụng item
+/// </summary>
+/// <param name="xitem"></param>
+/// <param name="yitem"></param>
 void UseItem(int xitem,int yitem)
 {
                 __asm {
@@ -264,7 +326,11 @@ void UseItem(int xitem,int yitem)
                                 pop eax;
                 }
 }
-
+/// <summary>
+/// hồi sinh
+/// </summary>
+/// <param name="pra"></param>
+/// <param name="mang"></param>
 void funcRebirth(int pra,int mang){
   __asm {
                                 push eax;
@@ -274,7 +340,7 @@ void funcRebirth(int pra,int mang){
                                 mov eax,3;
                                 push eax;
                                 mov ecx,mang;
-                                          mov eax,0x00621080;
+                                mov eax,0x00621080;
                                 call eax;
                                 pop ecx;
                                 pop eax;
@@ -298,7 +364,7 @@ void funcPickNPutItem(int locationPick, int colPick, int rowPick, int locationPu
 		mov eax, locationPick;
 		push eax;
 		mov ecx, ItemLocationAddress;
-			mov eax, 0x00479CF0;
+		mov eax, 0x00479CF0;
 		call eax;
 		pop ecx;
 		pop eax;
@@ -312,7 +378,7 @@ void SelectMenu(int idmenu,int idxmenu){
                                 mov eax,idxmenu;
                                 push eax;
                                 mov ecx,idmenu;
-                                mov eax,0x006EEC50;
+                                mov eax,0x00705710;
                                 call eax;
                                 pop eax;
                                 pop ecx;
@@ -325,8 +391,8 @@ void LevelUp()
    __asm{
         push eax;
         push ecx;
-      mov ecx,0x00A34760; //9.0.5 baseaddress
-        mov eax,0x004F6BB0;//9.0.5
+		mov ecx,0x00A5B1B4; 
+        mov eax,0x00509530;
         call eax;
         pop ecx;
         pop eax;
@@ -359,8 +425,8 @@ void ChoSauAn(int xitem,int yitem)
                                 push eax;
                                 mov eax,2;
                                 push eax;
-                                    mov ecx,0x00A34760;
-                                mov eax,0x004F6BB0;
+                                mov ecx,0x00A5B1B4;
+                                mov eax,0x005094D0;
                                 call eax;
                                 pop ecx;
                                 pop eax;
@@ -374,7 +440,7 @@ void VutItem(int xitem)
                                 push eax;
                                 push ecx;
                                 push xitem;
-                                    mov eax,0x004079F0;
+                                mov eax,0x004079F0;
                                 call eax;
                                 pop ecx;
                                 pop eax;
@@ -396,21 +462,8 @@ void funcBayBan(int chedo) //sai dia chi
    }
 }
 
-void MoiTV(int IDNpc) /// Ham` nay` khong su dung, khong update
-{ 
-__asm {  
-push eax;
-push ecx;//525140,0524FB0,push 1;524D40,Luyen mt 4F0AA0,4f2360
-push 1
-push IDNpc;
-add ecx,0x35C8;//529970//00540C10
-mov eax,0x0053F650;//8B E5 5D C3 CC CC CC CC CC 55 8B EC 83 EC 08 C7 45 F8 CC CC CC CC C7 45 FC CC CC CC CC 89 4D FC 8B 45 08 89 45 F8
-call eax;
-pop ecx;
-pop eax;
-} 
-}
 
+/////////// tổ đội/////////////////////////////////////
 void Group(int var1,int var2, int var3, int PlayerAdd){ 
 	_asm{ 
 		push eax;
@@ -420,8 +473,8 @@ void Group(int var1,int var2, int var3, int PlayerAdd){
 		push var3;
 		mov eax, PlayerAdd;
 		push eax;
-		mov ecx, 0x00A34760;
-		mov eax, 0x004F7270;
+		mov ecx, 0x00A5B1B4;
+		mov eax, 0x00509BF0;
 		call eax;
 		pop ecx;
 		pop eax; 
@@ -443,74 +496,6 @@ void LatBai(int Bai) //latbaiphoban
                               
         }
 }
-
-
-void LatBai1(int Bai)//chon tiep nhan nv vltt sai dia chi
-{
-        __asm {
-                                push eax;
-                                push ecx;							
-                                push Bai;
-								push 0x33;
-                                mov ecx, 0x0098F760;
-                                mov eax,0x004F9690;
-                                call eax;
-							    pop ecx;
-                                pop eax;
-                              
-        }
-}
-
-
-
-
-
-
-void NhatItem(int IDNpc) /// Ham` nay` khong su dung, khong update
-{ 
-__asm {  
-push eax;
-push ecx;//525140,0524FB0,push 1;524D40,Luyen mt 4F0AA0,4f2360
-push IDNpc;
-mov eax,0x0420660;//8B E5 5D C3 CC CC CC CC CC 55 8B EC 83 EC 08 C7 45 F8 CC CC CC CC C7 45 FC CC CC CC CC 89 4D FC 8B 45 08 89 45 F8
-call eax;
-pop ecx;
-pop eax;
-} 
-}
-
-void Chonsv(int Bai)  //sai dia chi
-{
-        __asm {
-                                push eax;
-                                push ecx;							
-                                push Bai;							
-                                mov ecx, 0x00A3FB08;
-                                mov eax,0x0060C100;
-                                call eax;
-							    pop ecx;
-                                pop eax;
-                              
-        }
-}
-
-
-void MoRuong(char* szcmd) //sai dia chi
-{ 
-	if(!szcmd) return;
-       __asm {  
-                                  push eax;
-                                  push ecx;
-                                  push 3
-                                  push szcmd;
-                                  add ecx,0x200;
-                                  mov eax,0x0041390F;
-                                  call eax;
-                                  pop ecx;
-                                  pop eax;
-	   } 
-}
-
 
 void EntityInteractive1(int pra1,int pra2,int pra3,int pNpc1,int pra4,int pra5,int pra6,int pra7,int pNpc) //sai dia chi
 {
@@ -542,7 +527,34 @@ void EntityInteractive1(int pra1,int pra2,int pra3,int pNpc1,int pra4,int pra5,i
                         pop eax;
                 }
 }
-
+void startGame() 
+{
+	__asm {
+		push edi;
+		mov edi, 0x00619F30;
+		call edi;
+		pop edi;
+		
+	}
+}
+void chooseServer(int idcum, int idServer, int base)
+{
+	__asm {
+		push eax;
+		push base;
+		push idServer;
+		push idcum;
+		mov ecx, base;
+		mov eax, 0x006174A0;
+		call eax;
+		mov eax, 0x00619F30;
+		call eax;
+		mov ecx, [0x009574B4];
+		mov eax, [ecx];
+		call dword ptr[eax + 0x2C];
+		add esp, 04;
+	}
+}
 void ResetCall(){
 	func_call = 0;
 	param_length = 0;
@@ -562,10 +574,18 @@ void ProcessCall(){
 			EntityInteractive(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]);
 			break;
 		}
-		case FUNC_DIALOG_INTERACT:{
-			funcDialogInteractive(params[0], params[1], params[2]);
+		case FUNC_CLICK_NPC: {
+			funcClickNPC(params[0], params[1]);
 			break;
 		}
+		case FUNC_SHORT_MOVE: {
+			funcShortMove(params[0], params[1], params[2], params[3], params[4]);
+			break;
+		}
+		/*case FUNC_DIALOG_INTERACT:{
+			funcDialogInteractive(params[0], params[1], params[2]);
+			break;
+		}*/
 		case FUNC_BUYITEM:{
 			funcBuyItem(params[0], params[1], params[2], params[3], params[4]);
 			break;
@@ -576,10 +596,10 @@ void ProcessCall(){
 			break;
 		}
 
-		case FUNC_MONEY_INTERACT:{
+		/*case FUNC_MONEY_INTERACT:{
 			funcMoneyInteract(params[0], params[1], params[2]);
 			break;
-		}
+		}*/
 		case FUNC_COMPOSE_ITEM:{
 			funcComposeItem(params[0]);
 			break;
@@ -615,10 +635,10 @@ void ProcessCall(){
 			break;
 
 		}	  
-	    case FUNC_MOITV:{
+	   /* case FUNC_MOITV:{
 	    MoiTV(params[0]);
              break;
-		}
+		}*/
 		case FUNC_GROUP:{
 			Group(params[0], params[1], params[2],params[3]);
 			break;
@@ -639,21 +659,21 @@ void ProcessCall(){
 	       LatBai(params[0]);
               break;
 		}
-		case FUNC_NHATITEM:{
+		/*case FUNC_NHATITEM:{
 	       NhatItem(params[0]);
               break;
-		}
+		}*/
 	
-		case FUNC_LATBAI1:{
+		/*case FUNC_LATBAI1:{
 	       LatBai1(params[0]);
               break;
-		}
+		}*/
 			
-		case FUNC_CHONSV:{
+		/*case FUNC_CHONSV:{
 	       Chonsv(params[0]);
               break;
 		 
-		}
+		}*/
 	    case FUNC_CLEAR:{
         	strcpy(szData,"");
              break;
@@ -664,15 +684,23 @@ void ProcessCall(){
         break;
 	   }
 
-		case FUNC_MORUONG:{
+		/*case FUNC_MORUONG:{
 	       MoRuong(szData);  
               break;
-		}
+		}*/
 		case FUNC_ENTITY_INTERACT1:{
 			EntityInteractive1(params[0], params[1], params[2], params[3],params[4], params[5], params[6], params[7], params[8]);
 			break;
 		}
-
+		
+		case FUNC_START_GAME: {
+			startGame();
+			break;
+		}
+		case FUNC_CHOOSE_SERVER: {
+			chooseServer(params[0], params[1], params[2]);
+			break;
+		}
 	}   
 	ResetCall();
 }
